@@ -29,13 +29,18 @@
 		"@electron-toolkit/eslint-config-prettier": "^2.0.0",
 		"@electron-toolkit/eslint-config-ts": "^1.0.1",
 		"@electron-toolkit/tsconfig": "^1.0.1",
+		"@tweakpane/core": "^2.0.3",
 		"@types/node": "^18.19.9",
+		"@types/p5": "^1.7.6",
 		"electron": "^28.2.0",
 		"electron-builder": "^24.9.1",
 		"electron-vite": "^2.0.0",
 		"eslint": "^8.56.0",
+		"gsap": "^3.12.5",
+		"p5": "^1.9.0",
 		"prettier": "^3.2.4",
 		"sass": "^1.70.0",
+		"tweakpane": "^4.0.3",
 		"typescript": "^5.3.3",
 		"vite": "^5.0.12"
 	}

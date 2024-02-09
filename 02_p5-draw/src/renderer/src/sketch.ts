@@ -11,6 +11,9 @@ export const sketch = (p: p5): void => {
 	let isLarge = false;
 	let radiusBiding: BindingApi;
 
+	/**
+	 * Animate
+	 */
 	const animate = (): void => {
 		const p = isLarge ? 20 : 200;
 		isLarge = !isLarge;
@@ -25,12 +28,18 @@ export const sketch = (p: p5): void => {
 		});
 	};
 
+	/**
+	 * Setup
+	 */
 	p.setup = (): void => {
 		p.createCanvas(p.windowWidth, p.windowHeight);
 		radiusBiding = gui.addBinding(params, "radius", { min: 10, max: 200, step: 1 });
 		gui.addButton({ title: "Animate" }).on("click", animate);
 	};
 
+	/**
+	 * Draw
+	 */
 	p.draw = (): void => {
 		p.background(250);
 		p.noStroke();

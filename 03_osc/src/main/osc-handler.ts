@@ -1,11 +1,13 @@
 import OSC from "osc-js";
 import { BrowserWindow, IpcMainInvokeEvent, ipcMain } from "electron";
+import { getLocalAddress } from "./utils";
 
 // 自身のIPアドレスとポート番号
-// const local = { host: getLocalAddress()[0], port: "9000" };
-const local = { port: "9000" };
+console.log(getLocalAddress().ipv4);
+// const local = { host: getLocalAddress().ipv4[0].address, port: "10000" };
+const local = { port: "10000" };
 // 送信先のIPアドレスとポート番号
-const remote = { host: "localhost", port: "3333" };
+const remote = { host: "localhost", port: "10001" };
 // OSC通信の設定
 const option = { type: "udp4", open: local, send: remote };
 
@@ -30,6 +32,11 @@ export class OscHandler {
 		ipcMain.handle("OscSend", this.#onSend);
 		//
 		this.osc.open();
+	}
+
+	open(port?: string, host?: string ): void {
+		this.osc.close();
+		this.osc.open({ open: { host, port } });
 	}
 
 	dispose(): void {
