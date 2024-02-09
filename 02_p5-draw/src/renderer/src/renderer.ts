@@ -2,8 +2,9 @@ import p5 from "p5";
 import { sketch } from "./sketch";
 
 class App {
+	p5: p5;
 	constructor() {
-		new p5(sketch);
+		this.p5 = new p5(sketch);
 	}
 }
 

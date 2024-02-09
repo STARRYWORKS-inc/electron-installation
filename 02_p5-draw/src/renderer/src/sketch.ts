@@ -48,6 +48,9 @@ export const sketch = (p: p5): void => {
 		p.ellipse(p.width / 2, p.height / 2, r, r);
 	};
 
+	/**
+	 * Window Resized
+	 */
 	p.windowResized = (): void => {
 		p.resizeCanvas(p.windowWidth, p.windowHeight);
 	};
