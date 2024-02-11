@@ -11,11 +11,11 @@ export class Step {
 
 	runSpeed: number = 100;
 	goToSteps: number = 0;
-	goToAngle: number = 0;
+	goToRotation: number = 0;
 	moveSteps: number = 1000;
-	moveAngle: number = 1;
+	moveRotation: number = 1;
 	servoTargetPosition: number = 0;
-	servoTargetAngle: number = 0;
+	servoTargetRotation: number = 0;
 	lastMessage: BindingApi<string>;
 
 	constructor() {
@@ -59,9 +59,9 @@ export class Step {
 		});
 		runAndStopFolder.addBlade({ view: "separator" });
 		runAndStopFolder.addBlade({ view: "separator" });
-		runAndStopFolder.addBinding(this, "goToAngle", { min: -100, max: 100, step: 0.25, label: "angle"});
+		runAndStopFolder.addBinding(this, "goToRotation", { min: -100, max: 100, step: 0.25, label: "rotation"});
 		runAndStopFolder.addButton({ title: "goTo" }).on("click", () => {
-			this.motor.goToByAngle(this.goToAngle * 360);
+			this.motor.goToByAngle(this.goToRotation * 360);
 		});
 		runAndStopFolder.addBlade({ view: "separator" });
 		runAndStopFolder.addBinding(this, "moveSteps", { min: -100000, max: 100000, step: 1, label: "steps"});
@@ -69,9 +69,9 @@ export class Step {
 			this.motor.move(this.moveSteps);
 		});
 		runAndStopFolder.addBlade({ view: "separator" });
-		runAndStopFolder.addBinding(this, "moveAngle", { min: -1, max: 1, step: 0.01, label: "angle" });
+		runAndStopFolder.addBinding(this, "moveRotation", { min: -1, max: 1, step: 0.01, label: "rotation" });
 		runAndStopFolder.addButton({ title: "Move" }).on("click", () => {
-			this.motor.moveByAngle(this.moveAngle * 360);
+			this.motor.moveByAngle(this.moveRotation * 360);
 		});
 		runAndStopFolder.addBlade({ view: "separator" });
 		runAndStopFolder.addButton({ title: "Soft stop" }).on("click", this.motor.softStop);
@@ -91,9 +91,9 @@ export class Step {
 			this.motor.setTargetPosition(this.servoTargetPosition);
 		});
 		servoModeFolder.addBlade({ view: "separator" });
-		servoModeFolder.addBinding(this, "servoTargetAngle", { min: -100, max: 100, step: 0.25, label: "angle" });
+		servoModeFolder.addBinding(this, "servoTargetRotation", { min: -100, max: 100, step: 0.25, label: "rotation" });
 		servoModeFolder.addButton({ title: "Set Target Position" }).on("click", () => {
-			this.motor.setTargetPositionByAngle(this.servoTargetAngle * 360);
+			this.motor.setTargetPositionByAngle(this.servoTargetRotation * 360);
 		});
 
 		this.osc.on(this.osc.MESSAGE, (_) => {
