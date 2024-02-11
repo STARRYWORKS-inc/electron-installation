@@ -1,10 +1,11 @@
-# 02 OSC Transmit And Receive
+# 04 DMX via Artnet
 
 ## Project Setup
 
 ### Install
 
 ```bash
+$ nodenv install
 $ yarn
 or
 $ npm install

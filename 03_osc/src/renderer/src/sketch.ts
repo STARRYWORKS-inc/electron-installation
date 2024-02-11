@@ -24,7 +24,7 @@ export const sketch = (p: p5): void => {
 		console.log("keydown", e.key);
 		// ElectronのIPCでメインプロセスにOSCメッセージを送信する
 		window.electron.ipcRenderer.invoke("OscSend", "/keydown", [e.key]);
-	}
+	};
 
 	/**
 	 * Setup
