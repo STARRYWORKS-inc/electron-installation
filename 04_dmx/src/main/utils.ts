@@ -5,6 +5,17 @@ type IPAddresses = {
 	ipv6: { name: string; address: string }[];
 };
 
+export const getPreferredLocalAddress = (startWith: string): string => {
+	const ipAddresses = getLocalAddress().ipv4;
+	// startWithで始まるIPアドレスを優先して取得 (なければ最初のIPアドレスを使用)
+	const localIP =
+		ipAddresses.length < 1
+			? "localhost"
+			: ipAddresses.find((ip) => ip.address.startsWith(startWith))?.address ?? ipAddresses[0].address;
+	return localIP;
+};
+
+
 /**
  * 自分のIPアドレスを取得
  * @returns
