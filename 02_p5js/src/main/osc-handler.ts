@@ -1,63 +1,66 @@
-import OSC from "osc-js";
+import osc from "osc";
 import { BrowserWindow, IpcMainInvokeEvent, ipcMain } from "electron";
-import { getLocalAddress } from "./utils";
+import { getPreferredLocalAddress } from "./utils";
 
-// ローカルマシンのIPアドレスを全て取得
-const ipAddresses = getLocalAddress().ipv4;
-// 10.0.0で始まるIPアドレスを優先して取得 (なければ最初のIPアドレスを使用)
-const localIP =
-	ipAddresses.length < 1
-		? "localhost"
-		: ipAddresses.find((ip) => ip.address.startsWith("10.0.0"))?.address ?? ipAddresses[0].address;
-// 自身のIPアドレスとポート番号
-// IPアドレスを指定しないと外部からの受信ができない。ただしIPアドレスを指定すると localhost や 127.0.0.1 といったアドレス指定での受信ができなくなる。
-const local = { host: localIP, port: "10000" };
-
-// OSC通信の設定
-const option = { type: "udp4", open: local };
+// 10.0.0で始まるIPアドレスを優先してローカルのIPアドレスを取得 (なければ最初のIPアドレスを使用)
+const localIP = getPreferredLocalAddress("10.0.0");
 
 /**
  * OSC通信をハンドリングするクラス
  */
 export class OscHandler {
-	osc: OSC;
 	mainWindow: BrowserWindow;
-	receiveHandler: number;
+	udpPort: osc.UDPPort;
+	ready: boolean = false;
+	destroyed: boolean = false;
 
 	/**
 	 * コンストラクタ
 	 * @param mainWindow
 	 */
 	constructor(mainWindow: BrowserWindow) {
-		console.log("OSC Settings", { local });
 		this.mainWindow = mainWindow;
-		this.osc = new OSC({ plugin: new OSC.DatagramPlugin(option) });
-		this.osc.on("open", () => console.info(`OSC Opened`));
-		this.osc.on("close", () => console.info(`OSC Closed`));
-		this.receiveHandler = this.osc.on("*", this.#onReceive);
+
+		this.udpPort = new osc.UDPPort({
+			localPort: 10000,
+			metadata: true,
+			broadcast: true,
+			multicastTTL: 128,
+			multicastMembership: [{ address: "224.0.0.1", interface: localIP }],
+		});
+		this.udpPort.options.localAddress = undefined; // osc.jsのバグ回避。これにより全てのアドレス宛のメッセージを受信する
+		this.udpPort.on("message", this.#onReceive);
+		this.udpPort.open();
+		this.udpPort.on("ready", () => {
+			this.ready = true;
+		});
 		ipcMain.handle("OscSend", this.#onSend);
-		//
-		this.osc.open();
 	}
 
-	open(port?: string, host?: string ): void {
-		this.osc.close();
-		this.osc.open({ open: { host, port } });
-	}
-
+	/**
+	 * 破棄処理
+	 */
 	dispose(): void {
-		this.osc.off("*", this.receiveHandler);
+		this.ready = false;
+		this.destroyed = true;
+		this.udpPort.off("message", this.#onReceive);
 		ipcMain.removeHandler("OscSend");
-		this.osc.close();
+		this.udpPort.close();
 	}
 
 	/**
 	 * 受信したOSCメッセージをフロント側に受け渡す
 	 * @param message
 	 */
-	#onReceive = (message: OSC.Message): void => {
-		// console.log("OSC Received Message ", { message });
-		this.mainWindow.webContents.send("OscReceived", message);
+	#onReceive = (oscMsg, timeTag, info): void => {
+		if (this.destroyed) return;
+		const address = oscMsg.address;
+		const values: (number | string | Blob | null)[] = [];
+		oscMsg.args.map((arg) => {
+			values.push(arg.value);
+		});
+		console.log("OSC Received Message ", { address, values, info });
+		this.mainWindow.webContents.send("OscReceived", address, values, info);
 	};
 
 	/**
@@ -75,7 +78,39 @@ export class OscHandler {
 		address: string,
 		values: string[] | number[],
 	): void => {
-		// console.log("OSC Send Message ", { host, port, address, values });
-		this.osc.send(new OSC.Message(address, ...values), { host, port });
+		if (this.destroyed || !this.ready) return;
+
+		const args = values.map((value) => {
+			if (typeof value === "string") {
+				return {
+					type: "s",
+					value,
+				};
+			}
+			if (typeof value === "number") {
+				if (value % 1 === 0) {
+					return {
+						type: "i",
+						value,
+					};
+				}
+				return {
+					type: "f",
+					value,
+				};
+			}
+			if (value instanceof Blob) {
+				return {
+					type: "b",
+					value,
+				};
+			}
+			return {
+				type: "s",
+				value: value.toString(),
+			};
+		});
+		console.log("OSC Send Message ", { host: host, port, address, args });
+		this.udpPort.send({ address, args }, host, port);
 	};
 }
