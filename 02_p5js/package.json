@@ -1,7 +1,7 @@
 {
-	"name": "electron-installation-02",
+	"name": "electron-installation-03",
 	"version": "1.0.0",
-	"description": "02 02 p5.js Draw | Electron Installation",
+	"description": "03 OSC Transmit And Receive | Electron Installation",
 	"main": "./out/main/index.js",
 	"author": "example.com",
 	"homepage": "https://electron-vite.org",
@@ -22,19 +22,22 @@
 	},
 	"dependencies": {
 		"@electron-toolkit/preload": "^3.0.0",
-		"@electron-toolkit/utils": "^3.0.0"
+		"@electron-toolkit/utils": "^3.0.0",
+		"osc-js": "^2.4.0"
 	},
 	"devDependencies": {
 		"@electron-toolkit/eslint-config-prettier": "^2.0.0",
 		"@electron-toolkit/eslint-config-ts": "^1.0.1",
 		"@electron-toolkit/tsconfig": "^1.0.1",
 		"@tweakpane/core": "^2.0.3",
+		"@types/events": "^3.0.3",
 		"@types/node": "^18.19.9",
 		"@types/p5": "^1.7.6",
 		"electron": "^28.2.0",
 		"electron-builder": "^24.9.1",
 		"electron-vite": "^2.0.0",
 		"eslint": "^8.56.0",
+		"events": "^3.3.0",
 		"gsap": "^3.12.5",
 		"p5": "^1.9.0",
 		"prettier": "^3.2.4",

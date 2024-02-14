@@ -3,6 +3,7 @@ import { Osc } from "./osc";
 import { BindingApi } from "@tweakpane/core";
 import * as config from "./STEP800_SM-42BYG011-25_24V.json";
 import Motor from "./motor";
+import OSC from "osc-js";
 
 export class Step {
 	osc: Osc;
@@ -16,15 +17,14 @@ export class Step {
 	moveRotation: number = 1;
 	servoTargetPosition: number = 0;
 	servoTargetRotation: number = 0;
-	lastMessage: BindingApi<string>;
 
 	constructor() {
 		this.osc = new Osc();
-		this.motor = new Motor(1, this.osc, config);
+		this.motor = new Motor(1, this.#sendOsc, config);
 		this.gui = new Pane({ title: "STEP 400/800" });
 		// this.gui.addBinding(params, "radius", { min: 10, max: 200, step: 1 });
 		const messageFolder = this.gui.addFolder({ title: "Message" });
-		this.lastMessage = messageFolder.addBinding(this.osc, "lastMessage", {
+		messageFolder.addBinding(this.osc, "lastMessage", {
 			readonly: true,
 			multiline: true,
 			rows: 8,
@@ -33,18 +33,34 @@ export class Step {
 		const basicFolder = this.gui.addFolder({ title: "Basic Settings", expanded: false });
 		basicFolder.addButton({ title: "Set Dest IP" }).on("click", this.motor.setDestIp);
 		basicFolder.addButton({ title: "Get Version" }).on("click", this.motor.getVersion);
+		basicFolder.addButton({ title: "Get Micro Step Mode" }).on("click", this.motor.getMicroStepMode);
 		basicFolder.addButton({ title: "Get KVal" }).on("click", this.motor.getKval);
 		basicFolder.addButton({ title: "Get Speed Profile" }).on("click", this.motor.getSpeedProfile);
 		basicFolder.addButton({ title: "Get Servo Param" }).on("click", this.motor.getServoParam);
+		basicFolder.addBinding(this.motor, "microStepMode", {
+			min: 0,
+			max: 7,
+			step: 1,
+			label: "Micro Step Mode",
+			format: (v) => {
+				return Math.pow(2, v);
+			},
+		});
 		basicFolder.addBinding(this.motor, "reportError");
+		basicFolder.addBinding(this.motor, "reportBusy");
+		basicFolder.addBinding(this.motor, "busy", { readonly: true });
 		// homing
 		const homingFolder = this.gui.addFolder({ title: "Homing", expanded: false });
+		homingFolder.addBinding(this.motor, "homeSwReport");
+		homingFolder.addBinding(this.motor, "homeSw", { readonly: true });
 		homingFolder.addButton({ title: "Homing" }).on("click", this.motor.homing);
 		homingFolder.addButton({ title: "Get Homing Status" }).on("click", this.motor.getHomingStatus);
 		homingFolder.addButton({ title: "Get Homing Direction" }).on("click", this.motor.getHomingDirection);
 		homingFolder.addButton({ title: "Get Homing Speed" }).on("click", this.motor.getHomingSpeed);
+		homingFolder.addButton({ title: "Get Home Switch Mode" }).on("click", this.motor.getHomeSwMode);
 		homingFolder.addBinding(this.motor, "homingDirection", { min: 0, max: 1, step: 1, label: "Direction" });
 		homingFolder.addBinding(this.motor, "homingSpeed", { min: 0, max: 15625, step: 0.1, label: "Speed"});
+		homingFolder.addBinding(this.motor, "homeSwMode", { min: 0, max: 1, step: 1, label: "Switch Mode" });
 		// run and stop
 		const runAndStopFolder = this.gui.addFolder({ title: "Run and Stop", expanded: false });
 		runAndStopFolder.addBlade({ view: "separator" });
@@ -96,8 +112,21 @@ export class Step {
 			this.motor.setTargetPositionByAngle(this.servoTargetRotation * 360);
 		});
 
-		this.osc.on(this.osc.MESSAGE, (_) => {
-			this.lastMessage.refresh();
-		});
+		this.osc.on(this.osc.MESSAGE, this.#onOscReceived);
 	}
+
+
+	#sendOsc: (
+		host: string,
+		port: number,
+		address: string,
+		args: (string | number | boolean | null | Blob)[],
+	) => void = (host, port, address, args) => {
+		this.osc.send(host, port, address, args);
+	};
+
+	#onOscReceived = (message: OSC.Message): void => {
+		this.motor.oscReceived(message.address, message.args);
+		this.gui.refresh();
+	};
 }

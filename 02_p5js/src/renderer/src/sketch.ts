@@ -2,14 +2,15 @@ import p5 from "p5";
 import { Pane } from "tweakpane";
 import gsap from "gsap";
 import { BindingApi } from "@tweakpane/core";
+import { HokuyoSensor } from "./hokuyoSensor";
 
 export const sketch = (p: p5): void => {
 	const gui = new Pane({ title: "Config" });
-	const params = {
-		radius: 50,
-	};
+	const params = { radius: 50 };
 	let isLarge = false;
 	let radiusBiding: BindingApi;
+	// const hokuyo = new HokuyoSensor();
+	// let touches = [];
 
 	/**
 	 * Animate
@@ -35,6 +36,9 @@ export const sketch = (p: p5): void => {
 		p.createCanvas(p.windowWidth, p.windowHeight);
 		radiusBiding = gui.addBinding(params, "radius", { min: 10, max: 200, step: 1 });
 		gui.addButton({ title: "Animate" }).on("click", animate);
+		// hokuyo.on(hokuyo.UPDATE, (t) => {
+		// 	touches = t;
+		// });
 	};
 
 	/**
@@ -46,6 +50,11 @@ export const sketch = (p: p5): void => {
 		p.fill(255, 200, 200);
 		const r = params.radius;
 		p.ellipse(p.width / 2, p.height / 2, r, r);
+		// console.log(touches);
+	};
+
+	p.mouseClicked = (): void => {
+		console.log("mouse clicked");
 	};
 
 	/**

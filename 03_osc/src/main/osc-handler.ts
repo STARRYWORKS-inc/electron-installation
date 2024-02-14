@@ -4,19 +4,17 @@ import { getLocalAddress } from "./utils";
 
 // ローカルマシンのIPアドレスを全て取得
 const ipAddresses = getLocalAddress().ipv4;
-// 10.0.0で始まるIPアドレスを優先して取得
+// 10.0.0で始まるIPアドレスを優先して取得 (なければ最初のIPアドレスを使用)
 const localIP =
 	ipAddresses.length < 1
 		? "localhost"
 		: ipAddresses.find((ip) => ip.address.startsWith("10.0.0"))?.address ?? ipAddresses[0].address;
 // 自身のIPアドレスとポート番号
+// IPアドレスを指定しないと外部からの受信ができない。ただしIPアドレスを指定すると localhost や 127.0.0.1 といったアドレス指定での受信ができなくなる。
 const local = { host: localIP, port: "10000" };
-// 送信先の設定
-const remote = { host: "localhost", port: "10000" };
-// const remote = { host: "224.0.0.1", port: "10000" }; // マルチキャストアドレス（ローカルネットワーク内の全てのデバイスに送信）
 
 // OSC通信の設定
-const option = { type: "udp4", open: local, send: remote };
+const option = { type: "udp4", open: local };
 
 /**
  * OSC通信をハンドリングするクラス
@@ -31,7 +29,7 @@ export class OscHandler {
 	 * @param mainWindow
 	 */
 	constructor(mainWindow: BrowserWindow) {
-		console.log("OSC Settings", { local, remote });
+		console.log("OSC Settings", { local });
 		this.mainWindow = mainWindow;
 		this.osc = new OSC({ plugin: new OSC.DatagramPlugin(option) });
 		this.osc.on("open", () => console.info(`OSC Opened`));
@@ -58,17 +56,26 @@ export class OscHandler {
 	 * @param message
 	 */
 	#onReceive = (message: OSC.Message): void => {
+		console.log("OSC Received Message ", { message });
 		this.mainWindow.webContents.send("OscReceived", message);
 	};
 
 	/**
 	 * フロント側からのOSCメッセージ送信を処理する
 	 * @param _
+	 * @param host
+	 * @param port
 	 * @param address
-	 * @param args
+	 * @param values
 	 */
-	#onSend = (_: IpcMainInvokeEvent, address: string, args: string[] | number[]): void => {
-		console.log("OSC Send Message ", { address, args });
-		this.osc.send(new OSC.Message(address, ...args));
+	#onSend = (
+		_: IpcMainInvokeEvent,
+		host: string,
+		port: number,
+		address: string,
+		values: string[] | number[],
+	): void => {
+		console.log("OSC Send Message ", { host, port, address, values });
+		this.osc.send(new OSC.Message(address, ...values), { host, port });
 	};
 }

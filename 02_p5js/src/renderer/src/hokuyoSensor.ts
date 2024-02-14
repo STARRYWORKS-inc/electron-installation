@@ -1,9 +1,8 @@
 import EventEmitter from "events";
 import OSC from "osc-js";
 
-export class Osc extends EventEmitter {
-	MESSAGE: string = "message";
-	lastMessage: string = "";
+export class HokuyoSensor extends EventEmitter {
+	UPDATE: string = "update";
 
 	constructor() {
 		super();
@@ -16,8 +15,15 @@ export class Osc extends EventEmitter {
 	 * @param message
 	 */
 	#onOscReceived = (_, message: OSC.Message): void => {
-		this.lastMessage = `address: ${message.address}\nargs:\n${message.args.join("\n")}\n`;
-		this.emit(this.MESSAGE, message);
+		const touches: { x: number; y: number; id: number }[] = [];
+		for (let i = 1; i < message.args.length; i += 3) {
+			touches.push({
+				x: message.args[i] as number,
+				y: message.args[i + 1] as number,
+				id: message.args[i + 2] as number,
+			});
+		}
+		this.emit(this.UPDATE, touches);
 	};
 
 	/**

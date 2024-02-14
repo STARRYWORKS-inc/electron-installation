@@ -1,20 +1,9 @@
 import p5 from "p5";
-import OSC from "osc-js";
+import { Osc } from "./osc";
 
 export const sketch = (p: p5): void => {
 	let oscText: string = "";
-
-
-
-	/**
-	 * OSCメッセージ受信時の処理
-	 * @param _
-	 * @param message
-	 */
-	const onOscReceived = (_, message: OSC.Message): void => {
-		console.log("OSC Received Message ", { message });
-		oscText = JSON.stringify(message, null, 2);
-	};
+	const osc: Osc = new Osc();
 
 	/**
 	 * キーボードイベント発生時の処理
@@ -22,8 +11,8 @@ export const sketch = (p: p5): void => {
 	 */
 	const onKeyDown = (e: KeyboardEvent): void => {
 		console.log("keydown", e.key);
-		// ElectronのIPCでメインプロセスにOSCメッセージを送信する
-		window.electron.ipcRenderer.invoke("OscSend", "/keydown", [e.key]);
+		// OSCメッセージの送信
+		osc.send("10.0.0.11", 10000, "/keydown", [e.key]);
 	};
 
 	/**
@@ -32,7 +21,10 @@ export const sketch = (p: p5): void => {
 	p.setup = (): void => {
 		p.createCanvas(p.windowWidth, p.windowHeight);
 		// OSC受信イベント
-		window.electron.ipcRenderer.on("OscReceived", onOscReceived);
+		osc.on(osc.MESSAGE, (message: any) => {
+			console.log("osc message", message);
+			oscText = `address: ${message.address}\nargs:\n${message.args.join("\n")}\n`;
+		});
 		// キーボードイベント
 		window.addEventListener("keydown", onKeyDown);
 	};
