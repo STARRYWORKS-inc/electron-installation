@@ -6,27 +6,30 @@ export const sketch = (p: p5): void => {
 	const osc: Osc = new Osc();
 
 	/**
-	 * キーボードイベント発生時の処理
-	 * @param e
-	 */
-	const onKeyDown = (e: KeyboardEvent): void => {
-		console.log("keydown", e.key);
-		// OSCメッセージの送信
-		osc.send("10.0.0.11", 10000, "/keydown", [e.key]);
-	};
-
-	/**
 	 * Setup
 	 */
 	p.setup = (): void => {
 		p.createCanvas(p.windowWidth, p.windowHeight);
 		// OSC受信イベント
-		osc.on(osc.MESSAGE, (message: any) => {
-			console.log("osc message", message);
-			oscText = `address: ${message.address}\nargs:\n${message.args.join("\n")}\n`;
+		osc.on(osc.MESSAGE, (address: string, args: []) => {
+			oscText = `address: ${address}\nargs:\n${JSON.stringify(args)}\n`;
 		});
-		// キーボードイベント
-		window.addEventListener("keydown", onKeyDown);
+	};
+
+	p.keyPressed = (): void => {
+		osc.send("localhost", 10000, "/keypress", [p.key]);
+	};
+
+	p.mouseMoved = (): void => {
+		osc.send("localhost", 10000, "/mouse/position", [p.mouseX, p.mouseY])
+	};
+
+	p.mousePressed = (): void => {
+		osc.send("localhost", 10000, "/mouse/button", [1]);
+	};
+
+	p.mouseReleased = (): void => {
+		osc.send("localhost", 10000, "/mouse/button", [0]);
 	};
 
 	/**

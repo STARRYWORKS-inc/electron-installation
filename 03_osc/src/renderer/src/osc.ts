@@ -1,5 +1,4 @@
 import EventEmitter from "events";
-import OSC from "osc-js";
 
 export class Osc extends EventEmitter {
 	MESSAGE: string = "message";
@@ -15,9 +14,9 @@ export class Osc extends EventEmitter {
 	 * @param _
 	 * @param message
 	 */
-	#onOscReceived = (_, message: OSC.Message): void => {
-		this.lastMessage = `address: ${message.address}\nargs:\n${message.args.join("\n")}\n`;
-		this.emit(this.MESSAGE, message);
+	#onOscReceived = (_, address: string, args: (number | string | Blob | null)[]): void => {
+		this.lastMessage = `address: ${address}\nargs:\n${args.join("\n")}\n`;
+		this.emit(this.MESSAGE, address, args);
 	};
 
 	/**
@@ -29,7 +28,7 @@ export class Osc extends EventEmitter {
 		host: string,
 		port: number,
 		address: string,
-		values: Array<number | string | boolean | null | Blob>,
+		values: (number | string | boolean | null | Blob)[],
 	): void {
 		// ElectronのIPCでメインプロセスにOSCメッセージを送信する
 		window.electron.ipcRenderer.invoke("OscSend", host, port, address, values);
