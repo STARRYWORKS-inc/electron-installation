@@ -3,7 +3,6 @@ import { Osc } from "./osc";
 import { BindingApi } from "@tweakpane/core";
 import * as config from "./STEP800_SM-42BYG011-25_24V.json";
 import Motor from "./motor";
-import OSC from "osc-js";
 
 export class Step {
 	osc: Osc;
@@ -125,8 +124,8 @@ export class Step {
 		this.osc.send(host, port, address, args);
 	};
 
-	#onOscReceived = (message: OSC.Message): void => {
-		this.motor.oscReceived(message.address, message.args);
+	#onOscReceived = (address: string, args: (number | string | Blob | null)[]): void => {
+		this.motor.oscReceived(address, args);
 		this.gui.refresh();
 	};
 }
