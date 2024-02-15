@@ -15,6 +15,7 @@ export class HokuyoSensor extends EventEmitter {
 	 * @param message
 	 */
 	#onOscReceived = (_, address: string, args: (number | string | Blob | null)[]): void => {
+		if (address !== "/touches") return;
 		const touches: { x: number; y: number; id: number }[] = [];
 		for (let i = 1; i < args.length; i += 3) {
 			touches.push({

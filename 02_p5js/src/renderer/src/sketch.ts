@@ -10,7 +10,7 @@ export const sketch = (p: p5): void => {
 	let isLarge = false;
 	let radiusBiding: BindingApi;
 	// const hokuyo = new HokuyoSensor();
-	// let touches = [];
+	// let touches: { x: number; y: number; id: number }[] = [];
 
 	/**
 	 * Animate

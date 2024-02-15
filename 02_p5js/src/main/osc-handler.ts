@@ -25,8 +25,6 @@ export class OscHandler {
 			localPort: 10000,
 			metadata: true,
 			broadcast: true,
-			multicastTTL: 128,
-			multicastMembership: [{ address: "224.0.0.1", interface: localIP }],
 		});
 		this.udpPort.options.localAddress = undefined; // osc.jsのバグ回避。これにより全てのアドレス宛のメッセージを受信する
 		this.udpPort.on("message", this.#onReceive);
@@ -59,7 +57,7 @@ export class OscHandler {
 		oscMsg.args.map((arg) => {
 			values.push(arg.value);
 		});
-		console.log("OSC Received Message ", { address, values, info });
+		// console.log("OSC Received Message ", { address, values, info });
 		this.mainWindow.webContents.send("OscReceived", address, values, info);
 	};
 
@@ -110,7 +108,7 @@ export class OscHandler {
 				value: value.toString(),
 			};
 		});
-		console.log("OSC Send Message ", { host: host, port, address, args });
+		// console.log("OSC Send Message ", { host: host, port, address, args });
 		this.udpPort.send({ address, args }, host, port);
 	};
 }
