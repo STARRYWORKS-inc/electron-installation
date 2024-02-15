@@ -2864,13 +2864,6 @@ optionator@^0.9.3:
     prelude-ls "^1.2.1"
     type-check "^0.4.0"
 
-osc-js@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/osc-js/-/osc-js-2.4.0.tgz#3d86ee350eac55731eca01588d588e6a73794057"
-  integrity sha512-9cvB8m6zt/iCsmeDdFJaD4mjC8preB1Gio+NVmjT0S3qxiejTfJ8vGudyTQciL9yqQHEuINNYS5Kb94+Ceqekg==
-  dependencies:
-    ws "^8.9.0"
-
 p-cancelable@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/p-cancelable/-/p-cancelable-2.1.1.tgz#aab7fbd416582fa32a3db49859c122487c5ed2cf"
@@ -3631,7 +3624,7 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
-ws@^8.2.3, ws@^8.9.0:
+ws@^8.2.3:
   version "8.16.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.16.0.tgz#d1cd774f36fbc07165066a60e40323eab6446fd4"
   integrity sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==
