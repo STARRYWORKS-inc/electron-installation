@@ -2,7 +2,6 @@ import osc from "osc";
 import { BrowserWindow, IpcMainInvokeEvent, ipcMain } from "electron";
 import { getPreferredLocalAddress } from "./utils";
 
-// 10.0.0で始まるIPアドレスを優先してローカルのIPアドレスを取得 (なければ最初のIPアドレスを使用)
 const localIP = getPreferredLocalAddress("10.0.0");
 
 /**
@@ -22,7 +21,7 @@ export class OscHandler {
 		this.mainWindow = mainWindow;
 
 		this.udpPort = new osc.UDPPort({
-			localPort: 10000,
+			localPort: 50101,
 			metadata: true,
 			broadcast: true,
 		});

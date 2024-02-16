@@ -11,10 +11,10 @@ export const getPreferredLocalAddress = (startWith: string): string => {
 	const localIP =
 		ipAddresses.length < 1
 			? "localhost"
-			: ipAddresses.find((ip) => ip.address.startsWith(startWith))?.address ?? ipAddresses[0].address;
+			: ipAddresses.find((ip) => ip.address.startsWith(startWith))?.address ??
+				ipAddresses[0].address;
 	return localIP;
 };
-
 
 /**
  * 自分のIPアドレスを取得

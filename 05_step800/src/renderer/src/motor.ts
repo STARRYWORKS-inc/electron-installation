@@ -1,4 +1,3 @@
-
 export default class Motor {
 	readonly port: number = 50000;
 	boardId: number = 1;
@@ -13,7 +12,6 @@ export default class Motor {
 	) => void;
 
 	#_microStepMode: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 = 7;
-	#_reportError: boolean = true;
 	#_reportBusy: boolean = false;
 	#_busy: boolean = false;
 	#_homingDirection: 0 | 1 = 0;
@@ -26,8 +24,10 @@ export default class Motor {
 	/**
 	 * constructor
 	 * @param id
-	 * @param osc
+	 * @param sendOsc
 	 * @param config JSON object from ponor's repository https://github.com/ponoor/step-series-support
+	 * @param boardId
+	 * @param stepAngle
 	 */
 	constructor(
 		id: number,
@@ -46,7 +46,6 @@ export default class Motor {
 		if (this.id < 1 || this.id > 4) {
 			throw new Error("Motor ID must be 1 to 4");
 		}
-		this.setDestIp();
 		if (config) this.applySettingsFromConfig(config);
 		this.getMicroStepMode();
 		this.getHomeSw();
@@ -56,30 +55,30 @@ export default class Motor {
 	}
 
 	/**
-	 *
+	 * oscReceived
 	 * @param address
 	 * @param message
 	 */
 	oscReceived = (address: string, args: (string | number | boolean | null | Blob)[]): void => {
-		console.log(address, args);
+		if (args[0] != this.id) return;
 		switch (address) {
 			case "/busy":
-				if (args[0] == this.id) this.#_busy = args[1] == 1;
+				this.#_busy = args[1] == 1;
 				break;
 			case "/microStepMode":
-				if (args[0] == this.id) this.#_microStepMode = args[1] as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+				this.#_microStepMode = args[1] as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 				break;
 			case "/homeSw":
-				if (args[0] == this.id) this.#_homeSw = args[1] == 1;
+				this.#_homeSw = args[1] == 1;
 				break;
 			case "/homeSwMode":
-				if (args[0] == this.id) this.#_homeSwMode = args[1] as 0 | 1;
+				this.#_homeSwMode = args[1] as 0 | 1;
 				break;
 			case "/homingDirection":
-				if (args[0] == this.id) this.#_homingDirection = args[1] as 0 | 1;
+				this.#_homingDirection = args[1] as 0 | 1;
 				break;
 			case "/homingSpeed":
-				if (args[0] == this.id) this.#_homingSpeed = args[1] as number;
+				this.#_homingSpeed = args[1] as number;
 				break;
 			default:
 				break;
@@ -129,14 +128,6 @@ export default class Motor {
 	 * basic settings and commands
 	 */
 
-	setDestIp = (): void => {
-		this.sendOsc(this.host, this.port, "/setDestIp", []);
-	};
-
-	getVersion = (): void => {
-		this.sendOsc(this.host, this.port, "/getVersion", []);
-	};
-
 	getMicroStepMode = (): void => {
 		this.sendOsc(this.host, this.port, "/getMicroStepMode", [this.id]);
 	};
@@ -177,15 +168,6 @@ export default class Motor {
 
 	get busy(): boolean {
 		return this.#_busy;
-	}
-
-	get reportError(): boolean {
-		return this.#_reportError;
-	}
-
-	set reportError(value: boolean) {
-		this.#_reportError = value;
-		this.sendOsc(this.host, this.port, "/reportError", [this.#_reportError ? 1 : 0]);
 	}
 
 	/**
