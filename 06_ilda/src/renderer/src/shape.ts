@@ -19,10 +19,10 @@ export interface CircleData {
 
 export interface LineData {
 	type: "line";
-	x1: number;
-	y1: number;
-	x2: number;
-	y2: number;
+	from: { x: number; y: number };
+	to: { x: number; y: number };
+	blankBefore: boolean;
+	blankAfter: boolean;
 	color: ColorData;
 }
 

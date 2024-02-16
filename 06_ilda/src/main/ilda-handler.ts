@@ -1,7 +1,7 @@
 import { BrowserWindow, IpcMainInvokeEvent, ipcMain } from "electron";
 import { DAC } from "@laser-dac/core";
 import { EtherDream } from "@laser-dac/ether-dream";
-import { Scene, Rect, Circle } from "@laser-dac/draw";
+import { Scene, Rect, Circle, Line } from "@laser-dac/draw";
 import { ShapeData } from "./shape";
 
 /**
@@ -42,6 +42,9 @@ export class IldaHandler {
 			} else if (shape.type == "rect") {
 				const rect = new Rect({ ...shape });
 				this.scene.add(rect);
+			} else if (shape.type == "line") {
+				const line = new Line({ ...shape });
+				this.scene.add(line);
 			}
 		});
 	};
